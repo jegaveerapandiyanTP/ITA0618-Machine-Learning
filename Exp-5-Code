@@ -1,0 +1,71 @@
+
+# K-Nearest Neighbors Classification
+
+import numpy as np
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Create Dataset
+data = {
+    'Study_Hours': [2, 3, 4, 5, 6, 7, 8, 9, 3, 8],
+    'Previous_Marks': [35, 40, 45, 50, 65, 70, 75, 85, 30, 80],
+    'Result': ['Fail', 'Fail', 'Fail', 'Fail', 'Pass',
+               'Pass', 'Pass', 'Pass', 'Fail', 'Pass']
+}
+
+df = pd.DataFrame(data)
+
+print("Student Dataset:")
+print(df)
+
+# Separate Features and Target
+X = df[['Study_Hours', 'Previous_Marks']]
+y = df['Result']
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+
+# Feature Scaling
+scaler = StandardScaler()
+
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Create KNN Model
+knn = KNeighborsClassifier(n_neighbors=3)
+
+# Train Model
+knn.fit(X_train, y_train)
+
+# Predict Test Data
+y_pred = knn.predict(X_test)
+
+# Calculate Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nModel Accuracy:", accuracy * 100, "%")
+
+# Confusion Matrix
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+# Predict New Student
+new_student = pd.DataFrame(
+    [[6, 60]],
+    columns=['Study_Hours', 'Previous_Marks']
+)
+
+new_student_scaled = scaler.transform(new_student)
+
+prediction = knn.predict(new_student_scaled)
+
+print("\nNew Student Details:")
+print("Study Hours: 6")
+print("Previous Marks: 60")
+print("Predicted Result:", prediction[0])
