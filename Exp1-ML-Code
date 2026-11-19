@@ -1,6 +1,4 @@
-
 # FIND-S Algorithm
-
 import pandas as pd
 
 # Training Dataset
