@@ -1,0 +1,81 @@
+
+import pandas as pd
+
+data = {
+    'Sky': ['Sunny', 'Sunny', 'Rainy', 'Sunny'],
+    'AirTemp': ['Warm', 'Warm', 'Cold', 'Warm'],
+    'Humidity': ['Normal', 'High', 'High', 'High'],
+    'Wind': ['Strong', 'Strong', 'Strong', 'Strong'],
+    'Water': ['Warm', 'Warm', 'Warm', 'Cool'],
+    'Forecast': ['Same', 'Same', 'Change', 'Change'],
+    'EnjoySport': ['Yes', 'Yes', 'No', 'Yes']
+}
+
+df = pd.DataFrame(data)
+df.to_csv('training_data.csv', index=False)
+
+print("CSV file created successfully!")
+print(df)
+
+
+import pandas as pd
+
+# Load CSV dataset
+df = pd.read_csv('training_data.csv')
+
+# Separate attributes and target
+X = df.iloc[:, :-1].values
+y = df.iloc[:, -1].values
+
+num_attributes = X.shape[1]
+
+# Initialize S and G boundaries
+S = ['0'] * num_attributes
+G = [['?'] * num_attributes]
+
+# Candidate Elimination Algorithm
+for i, example in enumerate(X):
+
+    if y[i] == 'Yes':
+
+        # Remove inconsistent hypotheses from G
+        G = [g for g in G if all(
+            g[j] == '?' or g[j] == example[j]
+            for j in range(num_attributes)
+        )]
+
+        # Generalize S
+        for j in range(num_attributes):
+            if S[j] == '0':
+                S[j] = example[j]
+            elif S[j] != example[j]:
+                S[j] = '?'
+
+    else:
+
+        # Specialize G to exclude negative example
+        new_G = []
+
+        for g in G:
+            for j in range(num_attributes):
+
+                if g[j] == '?':
+                    if S[j] != '?' and S[j] != '0':
+                        h = g.copy()
+                        h[j] = S[j]
+
+                        if all(
+                            h[k] == '?' or h[k] == example[k]
+                            for k in range(num_attributes)
+                        ) == False:
+                            new_G.append(h)
+
+        G = new_G
+
+# Display results
+print("Specific Boundary (S):")
+print(S)
+
+print("\nGeneral Boundary (G):")
+for g in G:
+    print(g)
