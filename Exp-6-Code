@@ -1,0 +1,93 @@
+
+# Naive Bayes Email Spam Classification
+
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Create Dataset
+data = {
+    'Message': [
+        'Win money now',
+        'Claim your free prize',
+        'Congratulations you won cash',
+        'Free lottery offer',
+        'Win a free gift',
+        'Meeting at 10 AM',
+        'Please submit assignment',
+        'Project discussion tomorrow',
+        'Class schedule updated',
+        'Attend the meeting',
+        'Free cash prize',
+        'Win lottery money',
+        'Submit your project',
+        'Assignment deadline tomorrow',
+        'Meeting schedule tomorrow',
+        'Claim free money',
+        'Project meeting today',
+        'Win cash gift',
+        'Please attend class',
+        'Free prize offer'
+    ],
+    'Category': [
+        'Spam', 'Spam', 'Spam', 'Spam', 'Spam',
+        'Not Spam', 'Not Spam', 'Not Spam',
+        'Not Spam', 'Not Spam',
+        'Spam', 'Spam', 'Not Spam', 'Not Spam',
+        'Not Spam', 'Spam', 'Not Spam',
+        'Spam', 'Not Spam', 'Spam'
+    ]
+}
+
+df = pd.DataFrame(data)
+
+print("Email Dataset:")
+print(df)
+
+# Separate Input and Output
+X = df['Message']
+y = df['Category']
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2,
+    random_state=42, stratify=y
+)
+
+# Convert Text into Numerical Features
+vectorizer = CountVectorizer()
+
+X_train_vector = vectorizer.fit_transform(X_train)
+X_test_vector = vectorizer.transform(X_test)
+
+# Create Naive Bayes Model
+model = MultinomialNB()
+
+# Train Model
+model.fit(X_train_vector, y_train)
+
+# Predict Test Data
+y_pred = model.predict(X_test_vector)
+
+# Calculate Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nModel Accuracy:", accuracy * 100, "%")
+
+# Confusion Matrix
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred,
+                       labels=['Not Spam', 'Spam']))
+
+# Predict New Email
+new_email = ["Win free cash prize"]
+
+new_email_vector = vectorizer.transform(new_email)
+
+prediction = model.predict(new_email_vector)
+
+print("\nNew Email:", new_email[0])
+print("Predicted Category:", prediction[0])
