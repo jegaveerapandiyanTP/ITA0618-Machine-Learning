@@ -1,0 +1,81 @@
+
+# Expectation Maximization Algorithm using GMM
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
+
+# Create Dataset
+data = {
+    'Income': [15, 18, 20, 22, 25, 60,
+               65, 70, 75, 80, 35, 40],
+
+    'Spending_Score': [20, 25, 30, 28, 35, 65,
+                       70, 75, 80, 85, 40, 45]
+}
+
+df = pd.DataFrame(data)
+
+print("Customer Dataset:")
+print(df)
+
+# Select Features
+X = df[['Income', 'Spending_Score']]
+
+# Feature Scaling
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Create Gaussian Mixture Model
+gmm = GaussianMixture(
+    n_components=3,
+    random_state=42
+)
+
+# Train EM Model
+gmm.fit(X_scaled)
+
+# Predict Clusters
+clusters = gmm.predict(X_scaled)
+
+# Display Results
+df['Cluster'] = clusters
+
+print("\nCustomer Clustering Results:")
+print(df)
+
+print("\nModel Converged:", gmm.converged_)
+print("Number of Iterations:", gmm.n_iter_)
+
+# Predict New Customer
+new_customer = pd.DataFrame(
+    [[45, 50]],
+    columns=['Income', 'Spending_Score']
+)
+
+new_scaled = scaler.transform(new_customer)
+
+prediction = gmm.predict(new_scaled)
+
+print("\nNew Customer:")
+print("Income: 45")
+print("Spending Score: 50")
+print("Predicted Cluster:", prediction[0])
+
+# Visualize Clusters
+plt.scatter(
+    X['Income'],
+    X['Spending_Score'],
+    c=clusters,
+    cmap='viridis',
+    s=80
+)
+
+plt.xlabel("Annual Income")
+plt.ylabel("Spending Score")
+plt.title("Customer Segmentation using EM Algorithm")
+plt.colorbar(label="Cluster")
+plt.show()
