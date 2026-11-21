@@ -1,0 +1,95 @@
+
+# Credit Score Prediction using Decision Tree
+
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Create Dataset
+data = {
+    'Income': [80, 70, 60, 50, 45, 40,
+               30, 25, 20, 75, 35, 55],
+
+    'Debt': [10, 15, 20, 25, 30, 35,
+             40, 45, 50, 12, 38, 28],
+
+    'Payment_History': [
+        'Good', 'Good', 'Good', 'Average',
+        'Average', 'Average', 'Poor', 'Poor',
+        'Poor', 'Good', 'Poor', 'Average'
+    ],
+
+    'Credit_Score': [
+        'Good', 'Good', 'Good', 'Average',
+        'Average', 'Average', 'Poor', 'Poor',
+        'Poor', 'Good', 'Poor', 'Average'
+    ]
+}
+
+df = pd.DataFrame(data)
+
+print("Credit Score Dataset:")
+print(df)
+
+# Encode Categorical Values
+encoder = LabelEncoder()
+
+df['Payment_History'] = encoder.fit_transform(
+    df['Payment_History']
+)
+
+df['Credit_Score'] = encoder.fit_transform(
+    df['Credit_Score']
+)
+
+# Separate Features and Target
+X = df[['Income', 'Debt', 'Payment_History']]
+y = df['Credit_Score']
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25,
+    random_state=42, stratify=y
+)
+
+# Create Decision Tree Model
+model = DecisionTreeClassifier(
+    random_state=42,
+    max_depth=3
+)
+
+# Train Model
+model.fit(X_train, y_train)
+
+# Predict Test Data
+y_pred = model.predict(X_test)
+
+# Calculate Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nModel Accuracy:", accuracy * 100, "%")
+
+# Confusion Matrix
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+# Predict New Customer
+new_customer = pd.DataFrame(
+    [[65, 18, encoder.transform(['Good'])[0]]],
+    columns=['Income', 'Debt', 'Payment_History']
+)
+
+prediction = model.predict(new_customer)
+
+# Decode Prediction
+result = encoder.inverse_transform(prediction)
+
+print("\nNew Customer Details:")
+print("Income: 65000")
+print("Debt: 18000")
+print("Payment History: Good")
+
+print("Predicted Credit Score:", result[0])
