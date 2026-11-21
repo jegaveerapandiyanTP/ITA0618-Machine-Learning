@@ -1,0 +1,79 @@
+
+# Perceptron Learning Algorithm
+
+import numpy as np
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Perceptron
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Create Dataset
+data = {
+    'Study_Hours': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'Attendance': [40, 45, 50, 55, 65, 70, 75, 85, 90, 95],
+    'Result': [0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
+}
+
+df = pd.DataFrame(data)
+
+print("Student Dataset:")
+print(df)
+
+# Separate Features and Target
+X = df[['Study_Hours', 'Attendance']]
+y = df['Result']
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3,
+    random_state=42, stratify=y
+)
+
+# Feature Scaling
+scaler = StandardScaler()
+
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Create Perceptron Model
+model = Perceptron(
+    max_iter=1000,
+    eta0=0.1,
+    random_state=42
+)
+
+# Train Model
+model.fit(X_train, y_train)
+
+# Prediction
+y_pred = model.predict(X_test)
+
+# Calculate Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nModel Accuracy:", accuracy * 100, "%")
+
+# Confusion Matrix
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+# Predict New Student
+new_student = pd.DataFrame(
+    [[6, 70]],
+    columns=['Study_Hours', 'Attendance']
+)
+
+new_student_scaled = scaler.transform(new_student)
+
+prediction = model.predict(new_student_scaled)
+
+print("\nNew Student Details:")
+print("Study Hours: 6")
+print("Attendance: 70%")
+
+if prediction[0] == 1:
+    print("Predicted Result: Pass")
+else:
+    print("Predicted Result: Fail")
