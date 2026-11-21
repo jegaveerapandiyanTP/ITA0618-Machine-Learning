@@ -1,0 +1,86 @@
+
+# Mobile Price Prediction using Random Forest
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Create Dataset
+data = {
+    'RAM': [512, 768, 1024, 1536, 2048, 3072,
+            4096, 6144, 8192, 1024, 2048, 4096],
+
+    'Battery': [2000, 2500, 3000, 3500, 4000, 4500,
+                5000, 5500, 6000, 2800, 3800, 4800],
+
+    'Memory': [8, 16, 16, 32, 32, 64,
+               128, 128, 256, 8, 64, 128],
+
+    'Screen_Size': [12.7, 13.0, 13.5, 14.0, 14.5,
+                    15.0, 15.5, 16.0, 16.5, 13.2,
+                    14.8, 15.8],
+
+    'Price_Range': [0, 0, 1, 1, 2, 2,
+                    3, 3, 3, 0, 2, 3]
+}
+
+df = pd.DataFrame(data)
+
+print("Mobile Price Dataset:")
+print(df)
+
+# Separate Features and Target
+X = df[['RAM', 'Battery', 'Memory', 'Screen_Size']]
+y = df['Price_Range']
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25,
+    random_state=42, stratify=y
+)
+
+# Create Random Forest Model
+model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42
+)
+
+# Train Model
+model.fit(X_train, y_train)
+
+# Predict Test Data
+y_pred = model.predict(X_test)
+
+# Calculate Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nModel Accuracy:", accuracy * 100, "%")
+
+# Confusion Matrix
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+# Predict New Mobile
+new_mobile = pd.DataFrame(
+    [[4096, 5000, 128, 15.5]],
+    columns=['RAM', 'Battery', 'Memory', 'Screen_Size']
+)
+
+prediction = model.predict(new_mobile)
+
+price_categories = {
+    0: "Low Cost",
+    1: "Medium Cost",
+    2: "High Cost",
+    3: "Very High Cost"
+}
+
+print("\nNew Mobile Specifications:")
+print(new_mobile)
+
+print("Predicted Price Range:",
+      price_categories[prediction[0]])
